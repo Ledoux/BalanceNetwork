@@ -1,3 +1,56 @@
+
+#/##################/#
+# Parameters
+#
+
+#import
+import numpy as np
+
+#set
+DefaultDict={
+
+    #Neurons prop
+    "UnitsInt":4000, #(N)
+    "InhRatioFloat":1./4., #(gamma)
+    "NeuronTypeStrsList":["Exc","Inh"], #(E,I)
+    "ConstantTimeFloat":20., #(tau_m, ms)
+    "RefractoryTimeFloat":2., #(tau_rp, ms)
+    "ThresholdFloat":-50., #(theta, mV)
+    "RestFloat":-70., #(Em, mV)
+    "ResetFloat":-60., #(vr, mV)
+
+    #Synapses prop
+    "SparsityFloat":0.1, #(epsilon)
+    "ExcWeightFloat":0.2, #(J,mV)
+    "InhScaleFloat":4., #(g)
+    "DelayTimeFloat":1., #(D,ms)
+    "LateralIsBool":True,
+
+    #Input
+    "RatioFrequencyFloat":1.,
+    
+    #Run
+    "RunStepTimeFloat":0.02, #ms
+    "RunDurationTimeFloat":200., #ms
+    "PlotIpythonBool":False
+}
+
+#get
+GlobalsDict=globals()
+
+#put in globals 
+map(
+    lambda __ItemTuple:
+    GlobalsDict.__setitem__(*__ItemTuple)
+    if __ItemTuple[0] not in GlobalsDict
+    else None,
+    DefaultDict.items()
+)
+
+FrequencyThresholdFloat=(ThresholdFloat-RestFloat)/(UnitsInt*SparsityFloat*ExcWeightFloat*ConstantTimeFloat*0.001)
+print('FrequencyThresholdFloat is '+str(FrequencyThresholdFloat)+' Hz')
+PoissonFrequencyFloat=RatioFrequencyFloat*FrequencyThresholdFloat #(nu_ext,Hz)
+
 #/##################/#
 # Architecture
 #
@@ -357,7 +410,7 @@ WindowTimeFloat = 0.4
 WindowLengthInt = int(WindowTimeFloat*brian2.ms/brian2.defaultclock.dt)
 CumsumArraysList=map(
     lambda __PopulationRateMonitorStr:
-    numpy.cumsum(numpy.insert(BalanceNetwork[__PopulationRateMonitorStr].rate,0,0)),
+    np.cumsum(np.insert(BalanceNetwork[__PopulationRateMonitorStr].rate,0,0)),
     PopulationRateMonitorStrsList
 )
 BinRateArraysList=map(
@@ -380,4 +433,7 @@ map(
     BinRateArraysList
 )
 
+#Check
+if PlotIpythonBool==False:
+    pyplot.show()
 
